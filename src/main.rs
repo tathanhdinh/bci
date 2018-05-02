@@ -1,6 +1,6 @@
 // extern crate inkwell;
-#![feature(proc_macro_path_invoc)]
-#![feature(use_extern_macros)]
+// #![feature(proc_macro_path_invoc)]
+// #![feature(use_extern_macros)]
 
 #[macro_use] extern crate structopt;
 #[macro_use] extern crate failure;
@@ -52,16 +52,22 @@ impl<'a> dot::Labeller<'a, Nd, Ed> for Graph {
 
 impl<'a> dot::GraphWalk<'a, Nd, Ed> for Graph {
     fn nodes(&'a self) -> dot::Nodes<'a, Nd> {
-        let basic_blocks = Vec::new();
-        let bb = {
+        let mut basic_blocks = Vec::new();
+        let mut bb = {
             llvm::core::LLVMGetFirstBasicBlock(self.func)
         };
-        basic_blocks.push(bb);
-        // (0..basic_blocks.len()).collect()
-        // self.basic_blocks.iter().collect()
-        // (0..self.basic_blocks.len()).collect()
-        // basic_blocks.iter().enumerate().collect()
-        basic_blocks.iter().collect()
+        while bb != std::ptr::null_mut() {
+            basic_blocks.push(bb);
+            bb = unsafe {
+                llvm::core::LLVMGetNextBasicBlock(bb)
+            };
+            basic_blocks.push(bb);
+        }
+        std::borrow::Cow::Owned(basic_blocks)
+    }
+
+    fn edges(&'a self) -> dot::Edges<'a, Ed> {
+
     }
 }
 
