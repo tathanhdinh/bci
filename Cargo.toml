@@ -5,8 +5,10 @@ authors = ["TA Thanh Dinh <tathanhdinh@gmail.com>"]
 
 [dependencies]
 llvm-sys = "37"
+# llvm-sys = "38"
 # llvm-sys = "39"
 # llvm-sys = "50"
+# llvm-sys = "50.0.1"
 # llvm-sys = { path = "../llvm-sys.rs" }
 structopt = "*"
 failure = "*"

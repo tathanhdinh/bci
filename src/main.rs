@@ -9,6 +9,8 @@ extern crate dot;
 use structopt::StructOpt;
 
 use std::io::{BufReader, Read};
+// use std::borrow::IntoCow;
+// use std::convert::Into;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "LLVM bitcode inspector")]
@@ -21,7 +23,47 @@ struct Opt {
 }
 
 // impl<'a> dot::Labeller<'a, 
-// type Nd = 
+type Nd = llvm::prelude::LLVMBasicBlockRef;
+type Ed = (Nd, Nd);
+struct Graph {
+    func: llvm::prelude::LLVMValueRef,
+    basic_blocks: Vec<Nd>
+}
+
+impl<'a> dot::Labeller<'a, Nd, Ed> for Graph {
+    fn graph_id(&'a self) -> dot::Id<'a> {
+        let graph_name = unsafe {
+            let name = llvm::core::LLVMGetValueName(self.func);
+            std::ffi::CStr::from_ptr(name)
+        };
+        dot::Id::new(graph_name.to_str().unwrap()).unwrap()
+    }
+
+    fn node_id(&'a self, n: &Nd) -> dot::Id<'a> {
+        let basic_block_name = unsafe {
+            // let value_name = llvm::core::LLVMGetValueName(n as &llvm::prelude::LLVMValueRef);
+            let value = llvm::core::LLVMBasicBlockAsValue(*n);
+            let name = llvm::core::LLVMGetValueName(value);
+            std::ffi::CStr::from_ptr(name)
+        };
+        dot::Id::new(basic_block_name.to_str().unwrap()).unwrap()
+    }
+}
+
+impl<'a> dot::GraphWalk<'a, Nd, Ed> for Graph {
+    fn nodes(&'a self) -> dot::Nodes<'a, Nd> {
+        let basic_blocks = Vec::new();
+        let bb = {
+            llvm::core::LLVMGetFirstBasicBlock(self.func)
+        };
+        basic_blocks.push(bb);
+        // (0..basic_blocks.len()).collect()
+        // self.basic_blocks.iter().collect()
+        // (0..self.basic_blocks.len()).collect()
+        // basic_blocks.iter().enumerate().collect()
+        basic_blocks.iter().collect()
+    }
+}
 
 fn run() -> Result<(), failure::Error> {
     let opt = Opt::from_args();
