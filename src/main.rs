@@ -53,7 +53,7 @@ impl<'a> dot::Labeller<'a, Nd, Ed> for Graph {
 impl<'a> dot::GraphWalk<'a, Nd, Ed> for Graph {
     fn nodes(&'a self) -> dot::Nodes<'a, Nd> {
         let mut basic_blocks = Vec::new();
-        let mut bb = {
+        let mut bb = unsafe {
             llvm::core::LLVMGetFirstBasicBlock(self.func)
         };
         while bb != std::ptr::null_mut() {
@@ -67,7 +67,15 @@ impl<'a> dot::GraphWalk<'a, Nd, Ed> for Graph {
     }
 
     fn edges(&'a self) -> dot::Edges<'a, Ed> {
+        let nodes = self.nodes();
+        for node in nodes.iter() {
+            let terminatorInst = unsafe {
+                llvm::core::LLVMGetBasicBlockTerminator(*node)
+            };
+        }
 
+        let mut edges = Vec::new();
+        std::borrow::Cow::Owned(edges)
     }
 }
 
