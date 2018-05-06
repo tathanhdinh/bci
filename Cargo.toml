@@ -10,7 +10,8 @@ llvm-sys = "37"
 # llvm-sys = "50"
 # llvm-sys = "50.0.1"
 # llvm-sys = { path = "../llvm-sys.rs" }
-structopt = "*"
-failure = "*"
+# structopt = "*"
+# failure = "*"
+quicli = "*"
 dot = "*"
 
